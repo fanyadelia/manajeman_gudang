@@ -52,11 +52,6 @@ section[data-testid="stSidebar"] {
     color: white;
 }
 
-/* INPUT */
-input {
-    border-radius: 12px !important;
-}
-
 /* METRIC */
 div[data-testid="stMetric"] {
     background: rgba(255,255,255,0.4);
@@ -74,10 +69,10 @@ class Node:
         self,
         nama,
         kode,
-        stok,
-        harga_beli,
-        harga_jual,
-        tanggal_masuk
+        stok=0,
+        harga_beli=0,
+        harga_jual=0,
+        tanggal_masuk="-"
     ):
 
         self.nama = nama
@@ -97,15 +92,7 @@ class DoublyLinkedList:
         self.head = None
 
     # TAMBAH BARANG
-    def tambah_barang(
-        self,
-        nama,
-        kode,
-        stok,
-        harga_beli,
-        harga_jual,
-        tanggal
-    ):
+    def tambah_barang(self, nama, kode):
 
         current = self.head
 
@@ -116,14 +103,7 @@ class DoublyLinkedList:
 
             current = current.next
 
-        new_node = Node(
-            nama,
-            kode,
-            stok,
-            harga_beli,
-            harga_jual,
-            tanggal
-        )
+        new_node = Node(nama, kode)
 
         if self.head is None:
             self.head = new_node
@@ -154,12 +134,24 @@ class DoublyLinkedList:
         return None
 
     # BARANG MASUK
-    def barang_masuk(self, nama, jumlah):
+    def barang_masuk(
+        self,
+        nama,
+        jumlah,
+        harga_beli,
+        harga_jual,
+        tanggal
+    ):
 
         barang = self.cari_barang(nama)
 
         if barang:
+
             barang.stok += jumlah
+            barang.harga_beli = harga_beli
+            barang.harga_jual = harga_jual
+            barang.tanggal_masuk = tanggal
+
             return True
 
         return False
@@ -177,42 +169,11 @@ class DoublyLinkedList:
             barang.stok -= jumlah
 
             if barang.stok == 0:
-                self.hapus_barang(nama)
                 return "habis"
 
             return "berhasil"
 
         return "tidak_ada"
-
-    # HAPUS BARANG
-    def hapus_barang(self, nama):
-
-        current = self.head
-
-        while current:
-
-            if current.nama.lower() == nama.lower():
-
-                if current == self.head:
-
-                    self.head = current.next
-
-                    if self.head:
-                        self.head.prev = None
-
-                else:
-
-                    if current.prev:
-                        current.prev.next = current.next
-
-                    if current.next:
-                        current.next.prev = current.prev
-
-                return True
-
-            current = current.next
-
-        return False
 
     # UPDATE STOK
     def update_stok(self, nama, stok_baru):
@@ -220,6 +181,7 @@ class DoublyLinkedList:
         barang = self.cari_barang(nama)
 
         if barang:
+
             barang.stok = stok_baru
             return True
 
@@ -264,7 +226,7 @@ class DoublyLinkedList:
 
         return jumlah_jenis, total_stok
 
-# PROGRAM UTAMA STEAMLIT
+# SESSION STATE
 if "gudang" not in st.session_state:
     st.session_state.gudang = DoublyLinkedList()
 
@@ -288,7 +250,6 @@ menu = st.sidebar.selectbox(
         "📥 Barang Masuk",
         "📤 Barang Keluar",
         "🔍 Cari Barang",
-        "✏️ Update Stok",
         "📦 Semua Barang",
         "📊 Statistik & Laporan"
     ]
@@ -300,53 +261,23 @@ if menu == "➕ Tambah Barang":
     st.header("➕ Tambah Barang")
 
     nama = st.text_input("📝 Nama Barang")
+
     kode = st.text_input("🏷️ Kode Barang")
-
-    stok = st.number_input(
-        "📦 Jumlah Stok",
-        min_value=1
-    )
-
-    harga_beli = st.text_input(
-        "💰 Harga Beli"
-    )
-
-    harga_jual = st.text_input(
-        "💸 Harga Jual"
-    )
-
-    tanggal = st.date_input(
-        "📅 Tanggal Masuk",
-        value=date.today()
-    )
 
     if st.button("➕ Tambah Barang"):
 
         if (
             nama.strip() == ""
             or kode.strip() == ""
-            or harga_beli.strip() == ""
-            or harga_jual.strip() == ""
         ):
 
             st.warning("⚠️ Semua input harus diisi!")
-
-        elif (
-            not harga_beli.isdigit()
-            or not harga_jual.isdigit()
-        ):
-
-            st.error("❌ Harga harus berupa angka!")
 
         else:
 
             hasil = gudang.tambah_barang(
                 nama,
-                kode,
-                stok,
-                int(harga_beli),
-                int(harga_jual),
-                tanggal.strftime("%d-%m-%Y")
+                kode
             )
 
             if hasil:
@@ -363,8 +294,16 @@ elif menu == "📥 Barang Masuk":
     nama = st.text_input("📝 Nama Barang")
 
     jumlah = st.number_input(
-        "📦 Jumlah Tambahan",
+        "📦 Jumlah Barang Masuk",
         min_value=1
+    )
+
+    harga_beli = st.text_input(
+        "💰 Harga Beli"
+    )
+
+    harga_jual = st.text_input(
+        "💸 Harga Jual"
     )
 
     tanggal_masuk = st.date_input(
@@ -374,18 +313,44 @@ elif menu == "📥 Barang Masuk":
 
     if st.button("📥 Tambah Stok"):
 
-        if gudang.barang_masuk(nama, jumlah):
+        if (
+            harga_beli.strip() == ""
+            or harga_jual.strip() == ""
+        ):
 
-            st.session_state.laporan_masuk.append({
-                "Nama Barang": nama,
-                "Jumlah": jumlah,
-                "Tanggal": tanggal_masuk.strftime("%d-%m-%Y")
-            })
+            st.warning("⚠️ Harga harus diisi!")
 
-            st.success("✅ Stok berhasil ditambahkan!")
+        elif (
+            not harga_beli.isdigit()
+            or not harga_jual.isdigit()
+        ):
+
+            st.error("❌ Harga harus berupa angka!")
 
         else:
-            st.error("❌ Barang tidak ditemukan!")
+
+            hasil = gudang.barang_masuk(
+                nama,
+                jumlah,
+                int(harga_beli),
+                int(harga_jual),
+                tanggal_masuk.strftime("%d-%m-%Y")
+            )
+
+            if hasil:
+
+                st.session_state.laporan_masuk.append({
+                    "Nama Barang": nama,
+                    "Jumlah": jumlah,
+                    "Harga Beli": harga_beli,
+                    "Harga Jual": harga_jual,
+                    "Tanggal": tanggal_masuk.strftime("%d-%m-%Y")
+                })
+
+                st.success("✅ Barang masuk berhasil!")
+
+            else:
+                st.error("❌ Barang tidak ditemukan!")
 
 # BARANG KELUAR
 elif menu == "📤 Barang Keluar":
@@ -395,7 +360,7 @@ elif menu == "📤 Barang Keluar":
     nama = st.text_input("📝 Nama Barang")
 
     jumlah = st.number_input(
-        "📦 Jumlah Keluar",
+        "📦 Jumlah Barang Keluar",
         min_value=1
     )
 
@@ -422,7 +387,14 @@ elif menu == "📤 Barang Keluar":
             st.success("✅ Barang berhasil dikeluarkan!")
 
         elif hasil == "habis":
-            st.warning("⚠️ Stok habis! Barang dihapus.")
+
+            st.session_state.laporan_keluar.append({
+                "Nama Barang": nama,
+                "Jumlah": jumlah,
+                "Tanggal": tanggal_keluar.strftime("%d-%m-%Y")
+            })
+
+            st.warning("⚠️ Stok habis!")
 
         elif hasil == "stok_kurang":
             st.error("❌ Stok tidak mencukupi!")
@@ -454,27 +426,7 @@ elif menu == "🔍 Cari Barang":
 
         else:
             st.error("❌ Barang tidak ditemukan!")
-
-# UPDATE STOK
-elif menu == "✏️ Update Stok":
-
-    st.header("✏️ Update Stok")
-
-    nama = st.text_input("📝 Nama Barang")
-
-    stok_baru = st.number_input(
-        "📦 Stok Baru",
-        min_value=0
-    )
-
-    if st.button("✏️ Update"):
-
-        if gudang.update_stok(nama, stok_baru):
-            st.success("✅ Stok berhasil diupdate!")
-
-        else:
-            st.error("❌ Barang tidak ditemukan!")
-
+            
 # SEMUA BARANG
 elif menu == "📦 Semua Barang":
 
@@ -491,7 +443,7 @@ elif menu == "📦 Semua Barang":
 # STATISTIK & LAPORAN
 elif menu == "📊 Statistik & Laporan":
 
-    st.header("📊 Statistik Gudang")
+    st.header("📊 Statistik & Laporan")
 
     jenis, total = gudang.jumlah_barang()
 
@@ -534,7 +486,7 @@ elif menu == "📊 Statistik & Laporan":
     st.warning("⚠️ Reset akan menghapus seluruh data gudang!")
 
     verifikasi = st.text_input(
-        "Ketik 'RESET' Untuk Konfirmasi"
+        "Ketik 'RESET' untuk konfirmasi"
     )
 
     if st.button("🔄 Reset Sistem"):
