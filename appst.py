@@ -175,18 +175,6 @@ class DoublyLinkedList:
 
         return "tidak_ada"
 
-    # UPDATE STOK
-    def update_stok(self, nama, stok_baru):
-
-        barang = self.cari_barang(nama)
-
-        if barang:
-
-            barang.stok = stok_baru
-            return True
-
-        return False
-
     # TAMPILKAN BARANG
     def tampil_barang(self):
 
