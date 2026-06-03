@@ -218,7 +218,7 @@ menu = st.sidebar.selectbox(
     "📋 MENU",
     [
         "📥 Barang Masuk",
-        "🔄 Koreksi / Update Data",
+        "🔄 Update Data",
         "📤 Barang Keluar",
         "🔍 Cari Barang",
         "📦 Semua Barang",
