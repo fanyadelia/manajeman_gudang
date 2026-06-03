@@ -108,7 +108,7 @@ class DoublyLinkedList:
         
         barang = self.cari_barang(nama)
         
-        # Skenario A: Kalau barang sudah terdaftar -> Stok otomatis DITAMBAH (Akumulasi)
+        # 1: Kalau barang sudah terdaftar -> Stok otomatis DITAMBAH (Akumulasi)
         if barang:
             barang.stok += jumlah
             barang.harga_beli = harga_beli
@@ -116,7 +116,7 @@ class DoublyLinkedList:
             barang.tanggal_masuk = tanggal
             return "ditambah"
             
-        # Skenario B: Kalau barang benar-benar baru -> Daftarkan jadi gerbong baru (Stok Awal)
+        # 2: Kalau barang benar-benar baru -> Daftarkan jadi gerbong baru (Stok Awal)
         new_node = Node(nama, kode, jumlah, harga_beli, harga_jual, tanggal)
         
         if self.head is None:
@@ -233,7 +233,7 @@ if menu == "📥 Barang Masuk":
     st.caption("Input nama barang. Jika belum ada otomatis jadi stok awal, jika sudah ada otomatis menambah stok lama.")
 
     nama = st.text_input("📝 Nama Barang")
-    kode = st.text_input("🏷️ Kode Barang (Isi bebas jika barang sudah pernah didaftarkan)")
+    kode = st.text_input("🏷️ Kode Barang")
     jumlah = st.number_input("📦 Jumlah Barang Masuk", min_value=1, step=1)
     harga_beli = st.text_input("💰 Harga Beli")
     harga_jual = st.text_input("💸 Harga Jual")
@@ -282,18 +282,18 @@ if menu == "📥 Barang Masuk":
                 st.success(f"📈 Stok '{nama}' berhasil ditambah {jumlah} pcs. Total stok gudang sekarang: {barang_aktif.stok} pcs.")
 
 # 2. MENU KOREKSI DATA (Khusus buat benerin kalau salah input total nilai)
-elif menu == "🔄 Koreksi / Update Data":
+elif menu == "🔄 Update Data":
 
-    st.header("🔄 Koreksi / Update Data (Fitur Salah Input)")
-    st.caption("Gunakan menu ini KHUSUS jika ada salah input data. Nilai stok dan harga yang diisi di sini akan MENIMPA total data lama.")
+    st.header("🔄 Update Data")
+    st.caption("Gunakan menu ini KHUSUS jika ada salah input data.")
 
-    nama = st.text_input("📝 Masukkan Nama Barang yang Salah Input")
-    stok_koreksi = st.number_input("📦 Tulis Total Stok yang Benar Seharusnya", min_value=0, step=1)
-    harga_beli_baru = st.text_input("💰 Tulis Harga Beli yang Benar")
-    harga_jual_baru = st.text_input("💸 Tulis Harga Jual yang Benar")
-    tanggal_koreksi = st.date_input("📅 Tanggal Koreksi", value=date.today())
+    nama = st.text_input("📝 Masukkan Nama Barang")
+    stok_koreksi = st.number_input("📦 Total Stok", min_value=0, step=1)
+    harga_beli_baru = st.text_input("💰 Harga Beli")
+    harga_jual_baru = st.text_input("💸 Harga Jual")
+    tanggal_koreksi = st.date_input("📅 Tanggal", value=date.today())
 
-    if st.button("🔄 Jalankan Koreksi Data"):
+    if st.button("🔄 Jalankan Update Data"):
 
         if nama.strip() == "" or harga_beli_baru.strip() == "" or harga_jual_baru.strip() == "":
             st.warning("⚠️ Semua kolom harus diisi untuk mencocokkan data!")
@@ -395,10 +395,10 @@ elif menu == "📊 Statistik & Laporan":
     st.header("📊 Statistik & Laporan")
     jenis, total = gudang.jumlah_barang()
 
-    # Hitung perputaran dana modal (Abaikan baris koreksi jika dirasa merancukan pembukuan asli)
+    # Hitung perputaran dana modal
     total_pengeluaran = 0
     for item in st.session_state.laporan_masuk:
-        if item["Keterangan"] != "Koreksi Salah Input":
+        if item["Keterangan"] != "Update Salah Input":
             total_pengeluaran += item["Jumlah"] * item["Harga Beli"]
 
     total_pemasukan = 0
@@ -413,13 +413,13 @@ elif menu == "📊 Statistik & Laporan":
 
     col3, col4 = st.columns(2)
     with col3:
-        st.metric("🟥 Pengeluaran Belanja Modal", f"Rp {total_pengeluaran:,}")
+        st.metric("🟥 Total Pengeluaran Gudang", f"Rp {total_pengeluaran:,}")
     with col4:
         st.metric("🟩 Total Pemasukan Gudang", f"Rp {total_pemasukan:,}")
 
     st.divider()
 
-    st.subheader("📥 Laporan Log Masuk & Koreksi")
+    st.subheader("📥 Laporan Log Masuk & Upate")
     if st.session_state.laporan_masuk:
         data_masuk_formatted = []
         for x in st.session_state.laporan_masuk:
@@ -433,7 +433,7 @@ elif menu == "📊 Statistik & Laporan":
             })
         st.table(data_masuk_formatted)
     else:
-        st.info("📭 Belum ada rekam data aktivitas masuk.")
+        st.info("📭 Belum ada data aktivitas masuk.")
 
     st.divider()
 
