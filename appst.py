@@ -312,7 +312,7 @@ elif menu == "🔄 Update Data":
                 # Catat ke log masuk dengan keterangan Koreksi Salah Input
                 st.session_state.laporan_masuk.append({
                     "Nama Barang": nama.strip(),
-                    "Keterangan": "Koreksi Salah Input",
+                    "Keterangan": "Update Data",
                     "Jumlah": stok_koreksi,
                     "Harga Beli": int(harga_beli_baru),
                     "Harga Jual": int(harga_jual_baru),
@@ -398,7 +398,7 @@ elif menu == "📊 Statistik & Laporan":
     # Hitung perputaran dana modal
     total_pengeluaran = 0
     for item in st.session_state.laporan_masuk:
-        if item["Keterangan"] != "Update Salah Input":
+        if item["Keterangan"] != "Update Data":
             total_pengeluaran += item["Jumlah"] * item["Harga Beli"]
 
     total_pemasukan = 0
