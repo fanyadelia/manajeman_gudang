@@ -233,7 +233,7 @@ if menu == "📥 Barang Masuk":
     st.caption("Input nama barang. Jika belum ada otomatis jadi stok awal, jika sudah ada otomatis menambah stok lama.")
 
     nama = st.text_input("📝 Nama Barang")
-    kode = st.text_input("🏷️ Kode Barang (Isi bebas jika barang sudah pernah didaftarkan)")
+    kode = st.text_input("🏷️ Kode Barang")
     jumlah = st.number_input("📦 Jumlah Barang Masuk", min_value=1, step=1)
     harga_beli = st.text_input("💰 Harga Beli")
     harga_jual = st.text_input("💸 Harga Jual")
@@ -282,18 +282,18 @@ if menu == "📥 Barang Masuk":
                 st.success(f"📈 Stok '{nama}' berhasil ditambah {jumlah} pcs. Total stok gudang sekarang: {barang_aktif.stok} pcs.")
 
 # 2. MENU KOREKSI DATA (Khusus buat benerin kalau salah input total nilai)
-elif menu == "🔄 Koreksi / Update Data":
+elif menu == "🔄 Update Data":
 
-    st.header("🔄 Koreksi / Update Data (Fitur Salah Input)")
+    st.header("🔄 Update Data")
     st.caption("Gunakan menu ini KHUSUS jika ada salah input data. Nilai stok dan harga yang diisi di sini akan MENIMPA total data lama.")
 
-    nama = st.text_input("📝 Masukkan Nama Barang yang Salah Input")
+    nama = st.text_input("📝 Masukkan Nama Barang")
     stok_koreksi = st.number_input("📦 Tulis Total Stok yang Benar Seharusnya", min_value=0, step=1)
-    harga_beli_baru = st.text_input("💰 Tulis Harga Beli yang Benar")
-    harga_jual_baru = st.text_input("💸 Tulis Harga Jual yang Benar")
+    harga_beli_baru = st.text_input("💰 Tulis Harga Beli")
+    harga_jual_baru = st.text_input("💸 Tulis Harga Jual")
     tanggal_koreksi = st.date_input("📅 Tanggal Koreksi", value=date.today())
 
-    if st.button("🔄 Jalankan Koreksi Data"):
+    if st.button("🔄 Jalankan Update Data"):
 
         if nama.strip() == "" or harga_beli_baru.strip() == "" or harga_jual_baru.strip() == "":
             st.warning("⚠️ Semua kolom harus diisi untuk mencocokkan data!")
@@ -419,7 +419,7 @@ elif menu == "📊 Statistik & Laporan":
 
     st.divider()
 
-    st.subheader("📥 Laporan Log Masuk & Koreksi")
+    st.subheader("📥 Laporan Log Masuk & Update")
     if st.session_state.laporan_masuk:
         data_masuk_formatted = []
         for x in st.session_state.laporan_masuk:
